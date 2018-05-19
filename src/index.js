@@ -29,19 +29,47 @@ function main() {
   const renderParsedCharToParsed = renderParsedChar(document.getElementById('parsed'));
   const renderMorseCharToCharLogs = renderMorseChar(document.getElementById('code_logs'));
 
-  // Transfer DOM events to stream by self, the basic way to create observable.
+  // Transform DOM events to stream, the basic way to create observable.
+  // Marble:
+  // enter key down -> ed
+  // other key down -> od
+  //
+  // --ed----od-od-ed---ed-->
+  // filter((e) => e.keyCode === 13)
+  // --ed----------ed---ed-->
   const enterKeyDownStream = streamFromEvent('keydown').pipe(filter(isEnterKey));
+
   // Or use the build-in handy methods.
+  // Marble: 
+  // enter key up -> eu
+  //
+  // similar with key down
   const enterKeyUpStream = fromEvent(document, 'keyup').pipe(filter(isEnterKey));
+
   const codeStream = enterKeyDownStream.pipe(
+    // --ed----ed-ed-ed----ed-->
     map(() => Date.now()),
+    // --t----t-t-t----t-->
+    // -----eu----------eu----eu-->
     buffer(enterKeyUpStream), 
+    // -----[t]----------[t, t, t]----[t]-->
     map(first),
+    // -----t----------t-------t-->
     map(enterKeyDownTime => Date.now() - enterKeyDownTime > DASH_DETEMINE_HOLD_MS_THRESHOLD ? morse.DASH : morse.DOT)
+    // -----DOT----------DASH-------DASH-->
   );
+
   const charStream = codeStream.pipe(
-    buffer(codeStream.pipe(debounce(() => timer(CHAR_DETEMINE_HALT_MS_THRESHOLD)))),
+    // ---DOT--DASH--DOT----DOT-DOT--DASH----->
+    // --------------------DOT--------------DASH----> This stream is created by the inner brackets
+    buffer(
+      // ---DOT--DASH--DOT----DOT-DOT--DASH----->
+      codeStream.pipe(debounce(() => timer(CHAR_DETEMINE_HALT_MS_THRESHOLD)))
+      // --------------------DOT--------------DASH---->
+    ),
+    // --------------------[DOT, DASH, DOT]--------------[DOT, DOT, DASH]---->
   );
+
   const clearStream = fromEvent(document.getElementById('clear_btn'), 'click');
 
   // Log morse codes.
