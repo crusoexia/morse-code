@@ -29,7 +29,7 @@ function main() {
   const renderParsedCharToParsed = renderParsedChar(document.getElementById('parsed'));
   const renderMorseCharToCharLogs = renderMorseChar(document.getElementById('code_logs'));
 
-  // Transfer DOM events to observable by self.
+  // Transfer DOM events to stream by self, the basic way to create observable.
   const enterKeyDownStream = streamFromEvent('keydown').pipe(filter(isEnterKey));
   // Or use the build-in handy methods.
   const enterKeyUpStream = fromEvent(document, 'keyup').pipe(filter(isEnterKey));
@@ -37,14 +37,14 @@ function main() {
     map(() => Date.now()),
     buffer(enterKeyUpStream), 
     map(first),
-    map(firstDownTime => Date.now() - firstDownTime > DASH_DETEMINE_HOLD_MS_THRESHOLD ? morse.DASH : morse.DOT)
+    map(enterKeyDownTime => Date.now() - enterKeyDownTime > DASH_DETEMINE_HOLD_MS_THRESHOLD ? morse.DASH : morse.DOT)
   );
   const charStream = codeStream.pipe(
     buffer(codeStream.pipe(debounce(() => timer(CHAR_DETEMINE_HALT_MS_THRESHOLD)))),
   );
   const clearStream = fromEvent(document.getElementById('clear_btn'), 'click');
 
-  // Log codes.
+  // Log morse codes.
   codeStream
     .pipe(
       firstRx(),

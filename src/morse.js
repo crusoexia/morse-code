@@ -43,12 +43,12 @@ const morseCodeTable = [
 
 function parse(codes) {
   return morseCodeTable
-    .filter(charCodes => {
-      return _(charCodes[1])
+    .filter(morseCodeRow => {
+      return _(morseCodeRow[1])
         .zip(codes)
         .every(codePair => codePair[0] === codePair[1]);
     })
-    .map(charCodes => charCodes[0])
+    .map(morseCodeRow => morseCodeRow[0])
     .shift() || '?';
 }
 
