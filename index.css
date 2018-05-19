@@ -13,6 +13,12 @@ p {
   min-height: 40px;
 }
 
+#clear_btn {
+  padding: 5px 20px;
+  font-size: 20px;
+  float: right;
+}
+
 #parsed {
   color: #f09233;
 }

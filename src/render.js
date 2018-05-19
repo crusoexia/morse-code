@@ -10,7 +10,7 @@ const renderCode = curry((container, code) => {
   container.appendChild(el);
 });
 
-function renderChar(container) {
+const renderMorseChar = container => () => {
   const el = document.createElement('div');
   el.className = 'char';
   container.appendChild(el);
@@ -18,6 +18,6 @@ function renderChar(container) {
 
 module.exports = {
   renderCode,
-  renderChar,
+  renderMorseChar,
   renderParsedChar
 };

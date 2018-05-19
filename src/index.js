@@ -1,7 +1,7 @@
 const { compose, first } = require('lodash/fp');
 const { Observable, fromEvent, timer } = require('rxjs');
-const { filter, buffer, map, debounce, first: firstRx, concat } = require('rxjs/operators');
-const { renderCode, renderChar, renderParsedChar } = require('./render');
+const { filter, buffer, map, debounce, first: firstRx, concat, tap } = require('rxjs/operators');
+const { renderCode, renderMorseChar, renderParsedChar } = require('./render');
 const morse = require('./morse');
 
 const DASH_DETEMINE_HOLD_MS_THRESHOLD = 200;
@@ -19,8 +19,16 @@ function isEnterKey(e) {
   return e.keyCode === 13;
 }
 
-window.addEventListener('load', () => {
+function clearLogs() {
+  document.getElementById('parsed').textContent = '';
+  document.getElementById('code_logs').innerHTML = '';
+  document.getElementById('clear_btn').blur();
+}
+
+function main() {
   const renderParsedCharToParsed = renderParsedChar(document.getElementById('parsed'));
+  const renderMorseCharToCharLogs = renderMorseChar(document.getElementById('code_logs'));
+
   // Transfer DOM events to observable by self.
   const enterKeyDownStream = streamFromEvent('keydown').pipe(filter(isEnterKey));
   // Or use the build-in handy methods.
@@ -34,6 +42,7 @@ window.addEventListener('load', () => {
   const charStream = codeStream.pipe(
     buffer(codeStream.pipe(debounce(() => timer(CHAR_DETEMINE_HALT_MS_THRESHOLD)))),
   );
+  const clearStream = fromEvent(document.getElementById('clear_btn'), 'click');
 
   // Log codes.
   codeStream
@@ -41,11 +50,18 @@ window.addEventListener('load', () => {
       firstRx(),
       concat(charStream)
     )
-    .subscribe(() => renderChar(document.getElementById('code_logs')));
+    .subscribe(renderMorseCharToCharLogs);
   codeStream.subscribe(code => renderCode(document.getElementById('code_logs').lastElementChild, code));
 
   // Log parsed chars.
   charStream
     .pipe(map(codes => morse.parse(codes)))
     .subscribe(renderParsedCharToParsed);
-});
+
+  // Clear logged messages
+  clearStream
+    .pipe(tap(clearLogs))
+    .subscribe(renderMorseCharToCharLogs);
+}
+
+window.addEventListener('load', main);
