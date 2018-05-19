@@ -1,0 +1,19 @@
+#code_history {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.code {
+  height: 20px;
+  background-color: #000;
+  margin: 10px 20px;
+}
+
+.code.dot {
+  width: 20px;
+  border-radius: 20px;
+}
+
+.code.dash {
+  width: 80px;
+}

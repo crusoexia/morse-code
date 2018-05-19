@@ -1,6 +1,7 @@
 const { compose, first } = require('lodash/fp');
 const { of, Observable, fromEvent, merge } = require('rxjs');
 const { filter, mapTo, buffer, map } = require('rxjs/operators');
+const { renderKeyStroke } = require('./render');
 
 const DASH_DETEMINE_HOLD_MS_THRESHOLD = 200;
 
@@ -12,8 +13,8 @@ function streamFromEvent(eventName) {
   })
 }
 
-function isEnterKey(keyCode) {
-  return keyCode === 13;
+function isEnterKey(e) {
+  return e.keyCode === 13;
 }
 
 function render() {
@@ -25,8 +26,8 @@ function render() {
 render();
 
 window.addEventListener('load', () => {
-  const enterKeyDownStream = streamFromEvent(document, 'keydown').pipe(filter(isEnterKey));
-  const enterKeyUpStream = fromEvent('keyup').pipe(filter(isEnterKey));
+  const enterKeyDownStream = streamFromEvent('keydown').pipe(filter(isEnterKey));
+  const enterKeyUpStream = fromEvent(document, 'keyup').pipe(filter(isEnterKey));
 
   enterKeyDownStream
     .pipe(
@@ -35,5 +36,5 @@ window.addEventListener('load', () => {
       map(first),
       map(firstDownTime => Date.now() - firstDownTime > DASH_DETEMINE_HOLD_MS_THRESHOLD ? 'DASH' : 'DOT')
     )
-    .subscribe(console.log)
+    .subscribe(code => renderKeyStroke(document.getElementById('code_history'), code));
 })
