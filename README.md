@@ -21,6 +21,8 @@ It will open your browser with some thing below:
 
 ![Sample](./sample.png)
 
+To send a __dot__, press `enter` quickly; To send a __dash__, press `enter` and hold a while. To send a char break, stop press for a longer time than press for dash.
+
 If you want to modify the codes and debug them, run:
 
 ```sh
