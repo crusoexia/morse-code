@@ -39,6 +39,10 @@ npm run debug
 
 The project doesn't enable __hot module reload__, but it will watch your changes and recomplie, everytime you change the code you need to refresh the page to get the changes work.
 
+## Marble diagram
+
+There are some marble diagrams in the comments to explain the key algorithms. Refer to [The introduction to Reactive Programming you've been missing](https://gist.github.com/staltz/868e7e9bc2a7b8c1f754) and [rxmarbles](http://rxmarbles.com/) if you don't understand them.
+
 ## Exercise
 
 The project just can parse chars, but hasn't implement the ability to detect word breaks. Refer to the wiki to get the idea how to detect a word break, implement this functionality and use your morse parser to send __Hello world__ to agent John.
