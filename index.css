@@ -1,4 +1,20 @@
-#code_logs {
+body {
+  background-color: #206F9C;
+  color: #fff;
+}
+
+h1 {
+  text-align: center;
+}
+
+p {
+  font-size: 40px;
+  line-height: 1;
+  min-height: 40px;
+}
+
+#parsed {
+  color: #f09233;
 }
 
 .char {
@@ -9,7 +25,7 @@
 
 .code {
   height: 20px;
-  background-color: #000;
+  background-color: #24394e;
   margin: 10px;
 }
 

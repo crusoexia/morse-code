@@ -1,6 +1,10 @@
 const { curry } = require('lodash/fp');
 
-const renderCode = curry(function (container, code) {
+const renderParsedChar = curry((container, char) => {
+  container.textContent += char;
+});
+
+const renderCode = curry((container, code) => {
   const el = document.createElement('div');
   el.className = `code ${code.toLowerCase()}`;
   container.appendChild(el);
@@ -14,5 +18,6 @@ function renderChar(container) {
 
 module.exports = {
   renderCode,
-  renderChar
+  renderChar,
+  renderParsedChar
 };
