@@ -1,12 +1,16 @@
-#code_history {
+#code_logs {
+}
+
+.char {
   display: flex;
   flex-wrap: wrap;
+  margin: 40px 0;
 }
 
 .code {
   height: 20px;
   background-color: #000;
-  margin: 10px 20px;
+  margin: 10px;
 }
 
 .code.dot {
