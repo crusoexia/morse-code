@@ -1,8 +1,9 @@
 const _ = require('lodash');
+const { curry, first } = require('lodash/fp')
 
 const DOT = 'DOT';
 const DASH = 'DASH';
-const morseCodeTable = [
+const morseCodeParseChart = [
   ['A', [ DOT, DASH ]],
   ['B', [ DASH, DOT, DOT, DOT ]],
   ['C', [ DASH, DOT, DASH, DOT ]],
@@ -41,19 +42,19 @@ const morseCodeTable = [
   ['0', [ DASH, DASH, DASH, DASH, DASH ]]
 ];
 
-function parse(codes) {
-  return morseCodeTable
-    .filter(morseCodeRow => {
-      return _(morseCodeRow[1])
+const parse = curry((parseChart, codes) => {
+  return parseChart
+    .filter(parseRule => {
+      return _(parseRule[1])
         .zip(codes)
         .every(codePair => codePair[0] === codePair[1]);
     })
-    .map(morseCodeRow => morseCodeRow[0])
+    .map(first)
     .shift() || '?';
-}
+});
 
 module.exports = {
-  parse,
+  parse: parse(morseCodeParseChart),
   DASH,
   DOT
 };
