@@ -1,5 +1,5 @@
 const { compose, first } = require('lodash/fp');
-const { Observable, fromEvent, timer } = require('rxjs');
+const { Observable, fromEvent, timer, merge } = require('rxjs');
 const { filter, buffer, map, debounce, first: firstRx, concat, tap } = require('rxjs/operators');
 const { renderCode, renderMorseChar, renderParsedChar } = require('./render');
 const morse = require('./morse');
@@ -46,6 +46,18 @@ function main() {
   // similar with key down
   const enterKeyUpStream = fromEvent(document, 'keyup').pipe(filter(isEnterKey));
 
+  // Merge two stream to create a new interaction stream
+  // in this stream we care about each user inputs no mater it's keydown or keyup
+  // will be used later
+  // 
+  // Marble:
+  //
+  // --ed-ed-ed-ed---------ed-----ed-ed-ed--->
+  // --------------eu----------eu----------eu--->
+  // merge(keydown, keyup)
+  // --ed-ed-ed-ed-eu------ed--eu-ed-ed-ed-eu--->
+  const interactionStream = merge(enterKeyDownStream, enterKeyUpStream);
+
   const codeStream = enterKeyDownStream.pipe(
     // --ed----ed-ed-ed----ed-->
     map(() => Date.now()),
@@ -60,12 +72,14 @@ function main() {
   );
 
   const charStream = codeStream.pipe(
+    // Each time user stop interact for 1s, we create a new char
+    //
     // ---DOT--DASH--DOT----DOT-DOT--DASH----->
-    // --------------------DOT--------------DASH----> This stream is created by the inner brackets
+    // --------------------eu--------------eu----> This stream is created by the inner brackets
     buffer(
-      // ---DOT--DASH--DOT----DOT-DOT--DASH----->
-      codeStream.pipe(debounce(() => timer(CHAR_DETEMINE_HALT_MS_THRESHOLD)))
-      // --------------------DOT--------------DASH---->
+      // --ed-ed-ed-ed-eu------ed--eu-ed-ed-ed-eu--->
+      interactionStream.pipe(debounce(() => timer(CHAR_DETEMINE_HALT_MS_THRESHOLD)))
+      // --------------------eu--------------------eu->
     ),
     // --------------------[DOT, DASH, DOT]--------------[DOT, DOT, DASH]---->
   );
